@@ -1,4 +1,8 @@
-const prompt = require('prompt-sync')();
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
 const chalk = require('chalk');
 const figlet = require('figlet');
 const boxen = require('boxen');
@@ -26,6 +30,10 @@ function isPrivateIP(ip) {
     );
 }
 
+function prompt(question) {
+    return new Promise(resolve => readline.question(question, resolve));
+}
+
 async function mainMenu() {
     while (true) {
         console.log(chalk.yellow("\n📌 Opciones disponibles:"));
@@ -34,10 +42,10 @@ async function mainMenu() {
         console.log(chalk.cyan(" 3. OSINT (Búsqueda básica - Duckduckgo)"));
         console.log(chalk.cyan(" 4. Salir"));
 
-        const choice = prompt(chalk.yellow("➡️  Seleccione una opción (1-4): ")).trim();
+        const choice = (await prompt(chalk.yellow("➡️  Seleccione una opción (1-4): "))).trim();
 
         if (choice === '1') {
-            const ip = prompt(chalk.blue("🔍 Ingrese la dirección IP: ")).trim();
+            const ip = (await prompt(chalk.blue("🔍 Ingrese la dirección IP: "))).trim();
             if (!ip) {
                 console.log(chalk.red("⚠️  IP no válida."));
                 continue;
@@ -85,7 +93,7 @@ async function mainMenu() {
             }
 
         } else if (choice === '2') {
-            const phoneip = prompt(chalk.magenta("📞 Ingrese el número telefónico (ej. 14152007986): ")).trim();
+            const phoneip = (await prompt(chalk.magenta("📞 Ingrese el número telefónico (ej. 14152007986): "))).trim();
             if (!phoneip || isNaN(phoneip)) {
                 console.log(chalk.red("⚠️  Número inválido."));
                 continue;
@@ -97,7 +105,7 @@ async function mainMenu() {
 
                 console.log(chalk.gray("\n" + "─".repeat(50)));
                 console.log(chalk.magentaBright("📱 Información del número:\n"));
-                console.log(chalk.white("Número:           ") + chalk.green(data.phone));
+                console.log(chalk.white("Número:           ") + chalk.green(data.phone || phoneip));
                 console.log(chalk.white("Válido:           ") + chalk.bold(data.valid ? "✅ Sí" : "❌ No"));
                 console.log(chalk.white("Formato Internacional: ") + chalk.yellow(data.format?.international || "N/A"));
                 console.log(chalk.white("Formato Local:    ") + chalk.yellow(data.format?.local || "N/A"));
@@ -113,8 +121,8 @@ async function mainMenu() {
                 console.log(chalk.red("❌ Error al consultar el número telefónico."));
                 console.error(chalk.gray(err.message));
             }
-        } else if ( choice === '3' ){
-            const query = prompt("🔎 Ingrese el nombre, email, dominio o palabra clave a buscar: ").trim();
+        } else if (choice === '3') {
+            const query = (await prompt("🔎 Ingrese el nombre, email, dominio o palabra clave a buscar: ")).trim();
             if (!query) {
                 console.log("⚠️  Entrada inválida.");
                 continue;
@@ -133,10 +141,8 @@ async function mainMenu() {
             } else if (platform === 'darwin') {
                 command = `open "${searchURL}"`;
             } else if (platform === 'android') {
-                // Termux Android
                 command = `termux-open-url "${searchURL}"`;
             } else {
-                // Linux u otros
                 command = `xdg-open "${searchURL}"`;
             }
 
@@ -146,16 +152,17 @@ async function mainMenu() {
                     console.error(chalk.gray(error.message));
                 }
             });
-        }  else if (choice === '4') {
+        } else if (choice === '4') {
             console.log(chalk.greenBright("\n👋 Saliendo del programa. ¡Hasta luego!"));
             break;
         } else {
-        	console.clear();
-        	setTimeout(()=>{
-              	console.log(chalk.red("❌ Opción no válida. Intente de nuevo."));
-        	}, 3000);
+            console.clear();
+            setTimeout(() => {
+                console.log(chalk.red("❌ Opción no válida. Intente de nuevo."));
+            }, 3000);
         }
     }
+    readline.close();
 }
 
 mainMenu();
