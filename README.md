@@ -24,7 +24,7 @@ ________________________________________________________________________________
 	
 	Step 5: Clone your GitHub repository with the code
 	
-	git clone https://github.com/usuario/mi-proyecto.git
+	git clone https://github.com/WebGDesings/View-Ip-Search.git
 	
 	Step 6: Then go to the folder
 	
